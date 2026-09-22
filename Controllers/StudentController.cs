@@ -33,7 +33,7 @@ public class StudentController : ControllerBase
         {
             return Ok(student);
         }
-        return NotFound();
+        return NotFound($"No student with ID {id}");
     }
 
     [HttpPost]
@@ -59,7 +59,7 @@ public class StudentController : ControllerBase
         int studentIndex = students.FindIndex(student => student.Id == id);
         if (studentIndex == -1)
         {
-            return NotFound();
+            return NotFound($"No student with ID {id}");
         }
 
         var newStudent = new Student(dto.Name, dto.Score, id);
