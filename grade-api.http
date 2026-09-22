@@ -1,0 +1,6 @@
+@grade_api_HostAddress = http://localhost:5295
+
+GET {{grade_api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
