@@ -49,7 +49,7 @@ public class StudentController : ControllerBase
             }        
         }
         
-        return Ok(filteredStudents.Where(s=>s.Score>=largerThan).Where(s=>s.Score<=smallerThan).ToList());
+        return Ok(filteredStudents.Where(s=>s.Score>=largerThan && s.Score<=smallerThan).ToList());
     }
 
     [HttpGet("{id}")]
