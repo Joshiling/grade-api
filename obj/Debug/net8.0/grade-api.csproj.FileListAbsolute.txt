@@ -30,3 +30,4 @@ C:\Users\jdrawlings\OneDrive - Deloitte (O365D)\Documents\Firebrand\Progamming E
 C:\Users\jdrawlings\OneDrive - Deloitte (O365D)\Documents\Firebrand\Progamming Essentials\Week 2 Day 1\C#\grade-api\obj\Debug\net8.0\grade-api.pdb
 C:\Users\jdrawlings\OneDrive - Deloitte (O365D)\Documents\Firebrand\Progamming Essentials\Week 2 Day 1\C#\grade-api\obj\Debug\net8.0\grade-api.genruntimeconfig.cache
 C:\Users\jdrawlings\OneDrive - Deloitte (O365D)\Documents\Firebrand\Progamming Essentials\Week 2 Day 1\C#\grade-api\obj\Debug\net8.0\ref\grade-api.dll
+C:\Users\jdrawlings\OneDrive - Deloitte (O365D)\Documents\Firebrand\Progamming Essentials\Week 2 Day 1\C#\grade-api\obj\Debug\net8.0\grade-api.sourcelink.json

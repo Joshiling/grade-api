@@ -37,20 +37,33 @@ public class StudentController : ControllerBase
     }
 
     [HttpPost]
-    public ActionResult<Student> Create(Student newStudent)
+    public ActionResult<Student> Create(StudentDTO dto)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+        var newStudent = new Student(dto.Name, dto.Score, students.Count > 0 ? students.Max(s => s.Id) + 1 : 1);
         students.Add(newStudent);
         return CreatedAtAction(nameof(GetByID), new { id = newStudent.Id }, newStudent);
     }
 
     [HttpPut("{id}")]
-    public ActionResult Update(int id, Student newStudent)
+    public ActionResult Update(int id, StudentDTO dto)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         int studentIndex = students.FindIndex(student => student.Id == id);
         if (studentIndex == -1)
         {
             return NotFound();
         }
+
+        var newStudent = new Student(dto.Name, dto.Score, id);
+
         students[studentIndex] = newStudent;
         return NoContent();
     }
