@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 
 [ApiController]
 [Route("[controller]")]
@@ -20,9 +21,35 @@ public class StudentController : ControllerBase
     }
 
     [HttpGet]
-    public ActionResult<List<Student>> GetAll()
+    public ActionResult<List<Student>> GetAll(int? largerThan, int? smallerThan,string? sortBy)
     {
-        return Ok(students);
+        if (largerThan == null)
+        {
+            largerThan = students.Min(s=>s.Score);
+        }
+        if (smallerThan == null)
+        {
+            smallerThan = students.Max(s=>s.Score);
+        }
+        
+        IEnumerable<Student> filteredStudents = students;
+        
+        if (sortBy != null)
+        {
+            switch (sortBy.ToLower())
+            {
+                case "asc":
+                    filteredStudents = filteredStudents.OrderBy(s=>s.Score);
+                    break;
+                case "desc":
+                    filteredStudents = filteredStudents.OrderByDescending(s=>s.Score);
+                    break;
+                default:
+                    return BadRequest("sortBy must be asc or desc");
+            }        
+        }
+        
+        return Ok(filteredStudents.Where(s=>s.Score>=largerThan).Where(s=>s.Score<=smallerThan).ToList());
     }
 
     [HttpGet("{id}")]
