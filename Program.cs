@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -17,6 +19,8 @@ builder.Services.AddCors(
     })
 );
 
+builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite("Data Source=students.db"));
+
 var app = builder.Build();
 
 
@@ -34,5 +38,23 @@ app.UseAuthorization();
 app.UseCors("AngularClient");
 
 app.MapControllers();
+
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+    if (!context.Students.Any())
+    {
+        context.Students.AddRange(
+            new Student("Ava Thompson", 88),
+            new Student("Liam Chen", 74),
+            new Student("Sofia Martinez", 91),
+            new Student("Noah Patel", 65 ),
+            new Student("Isla Robertson", 79)
+        );
+
+        context.SaveChanges();
+    }
+}
 
 app.Run();

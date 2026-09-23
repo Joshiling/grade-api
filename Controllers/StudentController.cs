@@ -1,38 +1,48 @@
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.EntityFrameworkCore;
+using SQLitePCL;
 
 [ApiController]
 [Route("[controller]")]
 
 public class StudentController : ControllerBase
 {
-    private static List<Student> students = new List<Student>
-    {
-    new Student("Laurence", 50,1),
-     new Student("Lewis", 10,2),
-     new Student("Melih", 70,3) 
-    };
+    // private static List<Student> students = new List<Student>
+    // {
+    // new Student("Laurence", 50,1),
+    //  new Student("Lewis", 10,2),
+    //  new Student("Melih", 70,3) 
+    // };
 
     private readonly ILogger<StudentController> _logger;
+    private readonly AppDbContext _context;
 
-    public StudentController(ILogger<StudentController> logger)
+    public StudentController(ILogger<StudentController> logger, AppDbContext context)
     {
         _logger = logger;
+        _context = context;
     }
 
     [HttpGet]
-    public ActionResult<List<Student>> GetAll(int? largerThan, int? smallerThan,string? sortBy)
+    public async Task<ActionResult<List<Student>>> GetAll(int? largerThan, int? smallerThan,string? sortBy)
     {
+        var db_students = await _context.Students.ToListAsync();
+        if (db_students.Count() == 0)
+        {
+            return Ok(db_students);
+        }
         if (largerThan == null)
         {
-            largerThan = students.Min(s=>s.Score);
+            largerThan = db_students.Min(s=>s.Score);
         }
         if (smallerThan == null)
         {
-            smallerThan = students.Max(s=>s.Score);
+            smallerThan = db_students.Max(s=>s.Score);
         }
         
-        IEnumerable<Student> filteredStudents = students;
+        IEnumerable<Student> filteredStudents = db_students;
         
         if (sortBy != null)
         {
@@ -53,9 +63,9 @@ public class StudentController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public ActionResult<Student> GetByID(int id)
+    public async Task<ActionResult<Student>> GetByID(int id)
     {
-        Student? student = students.Find(student => student.Id == id);
+        Student? student = await _context.Students.FindAsync(id);//students.Find(student => student.Id == id);
         if (student != null)
         {
             return Ok(student);
@@ -64,46 +74,62 @@ public class StudentController : ControllerBase
     }
 
     [HttpPost]
-    public ActionResult<Student> Create(StudentDTO dto)
+    public async Task<ActionResult<Student>> Create(StudentDTO dto)
     {
+
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
-        var newStudent = new Student(dto.Name, dto.Score, students.Count > 0 ? students.Max(s => s.Id) + 1 : 1);
-        students.Add(newStudent);
+        var newStudent = new Student(dto.Name,dto.Score);//, students.Count > 0 ? students.Max(s => s.Id) + 1 : 1};
+
+        _context.Students.Add(newStudent);
+        await _context.SaveChangesAsync();
         return CreatedAtAction(nameof(GetByID), new { id = newStudent.Id }, newStudent);
     }
 
+    [HttpPut("{id}/favourite")]
+    public async Task<ActionResult> Favourite(int id)
+    {
+        var student = await _context.Students.FindAsync(id);
+        if (student == null)
+        {
+            return NotFound($"No student with ID {id}");
+        }
+        student.Favourite = !student.Favourite;
+        await _context.SaveChangesAsync();
+        return NoContent();
+    }
+
     [HttpPut("{id}")]
-    public ActionResult Update(int id, StudentDTO dto)
+    public async Task<ActionResult> Update(int id, StudentDTO dto)
     {
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
 
-        int studentIndex = students.FindIndex(student => student.Id == id);
-        if (studentIndex == -1)
+        var student = await _context.Students.FindAsync(id);
+        if (student == null)
         {
             return NotFound($"No student with ID {id}");
         }
 
-        var newStudent = new Student(dto.Name, dto.Score, id);
+        student.Name = dto.Name;
+        student.Score = dto.Score;
+        await _context.SaveChangesAsync();
 
-        students[studentIndex] = newStudent;
         return NoContent();
     }
 
     [HttpDelete("{id}")]
-    public IActionResult Delete(int id)
+    public async Task<IActionResult> Delete(int id)
     {
-        int studentIndex = students.FindIndex(student => student.Id == id);
-        if (studentIndex == -1)
-        {
-            return NotFound();
-        }
-        students.RemoveAt(studentIndex);
+        var student = await _context.Students.FindAsync(id);
+        if (student == null) return NotFound();
+
+        _context.Students.Remove(student);
+        await _context.SaveChangesAsync();
         return NoContent();
     }
 

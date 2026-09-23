@@ -6,12 +6,13 @@ public class Student : IGradeable
     public int Id {get; set;}
     public string Name {get; set;}
     public int Score {get; set;}
+    public bool Favourite {get; set;}
 
-    public Student(string name, int score, int id)
+    public Student(string name, int score)
     {
         Name = name;
         Score = score;
-        Id=id;
+        Favourite=false;
     }
 
     public string GetGrade()
